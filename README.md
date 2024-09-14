@@ -67,9 +67,15 @@ can be found here <a href="https://securionpay.com/account-settings#api-keys">AP
 
 ## Changelog
 
+### 1.0.3
+- Compatibility check for wp 6.6
+
+### 1.0.2
+- Compatibility check for wp 6.3
+
 ### 1.0.1
 
-- Compatibility check for wp 6.0.
+- Compatibility check for wp 6.0
 ### 1.0.0
 
 - Initial release.

@@ -3,7 +3,7 @@
  * Plugin Name: Payment Gateway For EDD - SecurionPay
  * Author: Sajjad Hossain Sagor
  * Description: Integrate SecurionPay payment gateway to your Easy Digital Downloads (EDD) store.
- * Version: 1.0.1
+ * Version: 1.0.3
  * Author URI: http://sajjadhsagor.com
  * Text Domain: edd-securionpay
  * Domain Path: languages
@@ -166,34 +166,34 @@ function edd_securionpay_process_purchase( $purchase_data )
 
 	// make up the data to send to Gateway API
 	$request = array(
-	    'amount' => $amount,
-	    'currency' => edd_get_currency(),
-	    'card' => array(
-	        'cardholderName' => $purchase_data['card_info']['card_name'],
-	        'number' 		 => $purchase_data['card_info']['card_number'],
-	        'cvc' 		 	 => $purchase_data['card_info']['card_cvc'],
-	        'expMonth' 		 => $purchase_data['card_info']['card_exp_month'],
-	        'expYear' 		 => $purchase_data['card_info']['card_exp_year'],
-	        'addressLine1'   => $purchase_data['card_info']['card_address'],
-	        'addressCity'    => $purchase_data['card_info']['card_city'],
-	        'addressState'   => $purchase_data['card_info']['card_state'],
-	        'addressZip'     => $purchase_data['card_info']['card_zip'],
-	        'addressCountry' => $purchase_data['card_info']['card_country']
-	    )
+		'amount' => $amount,
+		'currency' => edd_get_currency(),
+		'card' => array(
+			'cardholderName' => $purchase_data['card_info']['card_name'],
+			'number' 		 => $purchase_data['card_info']['card_number'],
+			'cvc' 		 	 => $purchase_data['card_info']['card_cvc'],
+			'expMonth' 		 => $purchase_data['card_info']['card_exp_month'],
+			'expYear' 		 => $purchase_data['card_info']['card_exp_year'],
+			'addressLine1'   => $purchase_data['card_info']['card_address'],
+			'addressCity'    => $purchase_data['card_info']['card_city'],
+			'addressState'   => $purchase_data['card_info']['card_state'],
+			'addressZip'     => $purchase_data['card_info']['card_zip'],
+			'addressCountry' => $purchase_data['card_info']['card_country']
+		)
 	);
 
 	// go for it... charge the amount and see if it has any chance...
 	try
 	{    
-	    // the charge object after successfully charging a card
-	    // do something with charge object - see https://securionpay.com/docs/api#charge-object
-	    $charge = $gateway->createCharge( $request );
+		// the charge object after successfully charging a card
+		// do something with charge object - see https://securionpay.com/docs/api#charge-object
+		$charge = $gateway->createCharge( $request );
 
-	    // charge id will be used as TransactionID for reference
-	    $chargeId = $charge->getId();
+		// charge id will be used as TransactionID for reference
+		$chargeId = $charge->getId();
 
-	    // Saves transaction id
-	    edd_insert_payment_note( $payment_id, '_edd_securionpay_transaction_id', $chargeId );
+		// Saves transaction id
+		edd_insert_payment_note( $payment_id, '_edd_securionpay_transaction_id', $chargeId );
 		edd_insert_payment_note( $payment_id, __( 'Transaction ID : ', 'edd-securionpay' ) . $chargeId );
 		
 		// now we better empty the cart
@@ -207,13 +207,13 @@ function edd_securionpay_process_purchase( $purchase_data )
 	catch ( SecurionPayException $e )
 	{
 		//something went wrong buddy!
-	    
-	    // handle error response - see https://securionpay.com/docs/api#error-object
-	    $errorType = $e->getType();
-	    $errorCode = $e->getCode();
-	    $errorMessage = $e->getMessage();
+		
+		// handle error response - see https://securionpay.com/docs/api#error-object
+		$errorType = $e->getType();
+		$errorCode = $e->getCode();
+		$errorMessage = $e->getMessage();
 
-	    // add the error message to the order
+		// add the error message to the order
 		edd_insert_payment_note( $payment_id, $errorMessage );
 
 		// change the order as failed
@@ -274,8 +274,8 @@ function edd_securionpay_refund_admin_js( $payment_id = 0 )
 					
 					$( 'label[for="edd-securionpay-refund"]' ).remove();
 				}
-			});
-		});
+			} );
+		} );
 	</script>
 	<?php
 }
@@ -367,30 +367,30 @@ function edd_refund_securionpay_purchase( $payment )
 
 	// make up the data to send to Gateway API
 	$request = array(
-	    'chargeId' => $chargeID
+		'chargeId' => $chargeID
 	);
 
 	// try to refund the amount
 	try
 	{    
-	    $refund = $gateway->refundCharge( $request );
+		$refund 	= $gateway->refundCharge( $request );
 
-	    // do something with charge object - see https://securionpay.com/docs/api#charge-object
-	    $chargeId = $refund->getId();
-	    $Amount   = $refund->getAmount();
-	    $Currency = $refund->getCurrency();
+		// do something with charge object - see https://securionpay.com/docs/api#charge-object
+		$chargeId 	= $refund->getId();
+		$Amount   	= $refund->getAmount();
+		$Currency 	= $refund->getCurrency();
 
-	    // Prevents the Securionpay gateway from trying to process the refund multiple times...
+		// Prevents the Securionpay gateway from trying to process the refund multiple times...
 		$payment->update_meta( '_edd_securionpay_refunded', true );
 
 		$payment->add_note( sprintf( __( 'Securionpay successfully refunded %s %s', 'edd-securionpay' ), $Amount, $Currency ) );
 	}
 	catch ( SecurionPayException $e )
 	{    
-	    // handle error response - see https://securionpay.com/docs/api#error-object
-	    $errorMessage = $e->getMessage();
+		// handle error response - see https://securionpay.com/docs/api#error-object
+		$errorMessage = $e->getMessage();
 
-	    $payment->add_note( sprintf( __( 'Securionpay refund failed : %s', 'edd-securionpay' ), $errorMessage ) );
+		$payment->add_note( sprintf( __( 'Securionpay refund failed : %s', 'edd-securionpay' ), $errorMessage ) );
 
 		return false;
 	}
